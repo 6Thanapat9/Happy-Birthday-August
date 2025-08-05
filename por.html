@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 Birthday Memories 📸</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Kanit:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000000;
+            font-family: 'Kanit', sans-serif;
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Background decorations */
+        .bg-decorations {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-heart {
+            position: absolute;
+            font-size: 1.5rem;
+            color: rgba(255, 105, 180, 0.3);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.7; }
+        }
+        
+        /* Main container */
+        .main-container {
+            position: relative;
+            z-index: 2;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Title section */
+        .title-section {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: title-entrance 2s ease-out;
+        }
+        
+        .main-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            color: #ffd700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            margin-bottom: 20px;
+            animation: title-glow 3s ease-in-out infinite;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #ffffff;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes title-entrance {
+            0% { opacity: 0; transform: translateY(-50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes title-glow {
+            0%, 100% { text-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+            50% { text-shadow: 0 0 50px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 179, 71, 0.6); }
+        }
+        
+        /* Netflix-style carousel */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            height: 500px;
+            margin: 40px 0;
+            perspective: 1000px;
+        }
+        
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .photo-slide {
+            position: absolute;
+            width: 300px;
+            height: 400px;
+            transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+        
+        .photo-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .photo-slide:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Photo positioning */
+        .photo-slide.active {
+            transform: translateX(0) scale(1.2) rotateY(0deg);
+            z-index: 10;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+        
+        .photo-slide.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(255, 215, 0, 0.2) 0%, 
+                rgba(255, 179, 71, 0.15) 25%, 
+                rgba(255, 105, 180, 0.1) 50%, 
+                rgba(138, 43, 226, 0.15) 75%, 
+                rgba(75, 0, 130, 0.2) 100%);
+            border-radius: 20px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .photo-slide.prev {
+            transform: translateX(-350px) scale(0.8) rotateY(15deg);
+            z-index: 5;
+            opacity: 0.7;
+        }
+        
+        .photo-slide.prev::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(255, 215, 0, 0.1) 0%, 
+                rgba(255, 179, 71, 0.08) 50%, 
+                rgba(255, 105, 180, 0.05) 100%);
+            border-radius: 20px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .photo-slide.next {
+            transform: translateX(350px) scale(0.8) rotateY(-15deg);
+            z-index: 5;
+            opacity: 0.7;
+        }
+        
+        .photo-slide.next::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(255, 215, 0, 0.1) 0%, 
+                rgba(255, 179, 71, 0.08) 50%, 
+                rgba(255, 105, 180, 0.05) 100%);
+            border-radius: 20px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .photo-slide.far-prev {
+            transform: translateX(-500px) scale(0.6) rotateY(25deg);
+            z-index: 1;
+            opacity: 0.4;
+        }
+        
+        .photo-slide.far-prev::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(255, 215, 0, 0.05) 0%, 
+                rgba(255, 179, 71, 0.03) 100%);
+            border-radius: 20px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .photo-slide.far-next {
+            transform: translateX(500px) scale(0.6) rotateY(-25deg);
+            z-index: 1;
+            opacity: 0.4;
+        }
+        
+        .photo-slide.far-next::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(255, 215, 0, 0.05) 0%, 
+                rgba(255, 179, 71, 0.03) 100%);
+            border-radius: 20px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .photo-slide.hidden {
+            transform: translateX(-800px) scale(0.3);
+            opacity: 0;
+            z-index: 0;
+        }
+        
+        /* Photo indicators */
+        .indicators {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .indicator.active {
+            background: #ffd700;
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+        
+        /* Message section */
+        .message-section {
+            max-width: 1100px;
+            width: 90%;
+            text-align: left;
+            margin-top: 60px;
+            padding: 40px;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%);
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+            max-height: 85vh;
+            overflow: visible;
+        }
+        
+        .message-title {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            color: #00ff00;
+            margin-bottom: 20px;
+            text-shadow: none;
+            font-weight: bold;
+        }
+        
+        .terminal-prompt {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .typing-text {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            line-height: 1.4;
+            color: #ffffff;
+            min-height: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: block;
+            text-align: left;
+            background: #0a0a0a;
+            padding: 30px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            white-space: pre;
+            word-wrap: break-word;
+            scrollbar-width: thin;
+            scrollbar-color: #333 #0a0a0a;
+        }
+        
+        .typing-text::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .typing-text::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        
+        .typing-text::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        
+        .typing-text::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .typed-char {
+            opacity: 0;
+            animation: char-appear 0.1s ease-in-out forwards;
+        }
+        
+        @keyframes char-appear {
+            to { opacity: 1; }
+        }
+        
+        .cursor {
+            display: inline-block;
+            background: #00ff00;
+            width: 10px;
+            height: 1.2rem;
+            animation: cursor-blink 1s infinite;
+            margin-left: 2px;
+        }
+        
+        @keyframes cursor-blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Sparkle effects */
+        .sparkle {
+            position: absolute;
+            font-size: 1rem;
+            color: #ffd700;
+            pointer-events: none;
+            animation: sparkle-dance 2s ease-in-out infinite;
+        }
+        
+        @keyframes sparkle-dance {
+            0%, 100% { 
+                opacity: 0.5; 
+                transform: scale(0.8) rotate(0deg); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.2) rotate(180deg); 
+            }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .carousel-container {
+                height: 350px;
+            }
+            
+            .photo-slide {
+                width: 200px;
+                height: 300px;
+            }
+            
+            .photo-slide.active {
+                transform: translateX(0) scale(1.1) rotateY(0deg);
+            }
+            
+            .photo-slide.prev, .photo-slide.next {
+                transform: translateX(-250px) scale(0.7) rotateY(15deg);
+            }
+            
+            .photo-slide.next {
+                transform: translateX(250px) scale(0.7) rotateY(-15deg);
+            }
+            
+            .message-section {
+                margin: 40px 10px;
+                padding: 25px 15px;
+                background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%);
+                width: 95%;
+                max-width: none;
+                max-height: 70vh;
+            }
+            
+            .typing-text {
+                font-size: 0.9rem;
+                line-height: 1.3;
+                min-height: 300px;
+                max-height: 60vh;
+                padding: 20px;
+                white-space: pre;
+                word-wrap: break-word;
+                overflow-y: auto;
+            }
+        }
+        
+        /* Loading animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 1s ease-out;
+        }
+        
+        .loading-text {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            animation: loading-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes loading-pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        
+        .loading-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-text">✨ กำลังเตรียมคำอวยพร... ✨</div>
+    </div>
+    
+    <!-- Background decorations -->
+    <div class="bg-decorations" id="bgDecorations"></div>
+    
+    <!-- Main container -->
+    <div class="main-container">
+        <!-- Title section -->
+        <div class="title-section">
+            <h1 class="main-title">💕 คำอวยพรจากใจของคนหล่อๆ 💕</h1>
+            <p class="subtitle">เรื่องราวแห่งการวิวัฒนาการของออกัส</p>
+        </div>
+        
+        <!-- Photo carousel -->
+        <div class="carousel-container">
+            <div class="carousel" id="carousel">
+                <!-- Photos will be inserted here by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Photo indicators -->
+        <div class="indicators" id="indicators"></div>
+        
+        <!-- Message section -->
+        <div class="message-section">
+            <div class="terminal-prompt">user@birthday:~$ cat birthday_message.txt</div>
+            <h2 class="message-title">💌 Loading birthday message...</h2>
+            <div class="typing-text" id="typingText">
+                <span class="cursor" id="cursor"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Photo data
+        const photos = [
+            'picture_gust/0001.JPG',
+            'picture_gust/0002.JPG',
+            'picture_gust/0003.JPG',
+            'picture_gust/0004.JPG',
+            'picture_gust/0005.JPG',
+            'picture_gust/0006.JPG',
+            'picture_gust/0007.JPG',
+            'picture_gust/0008.JPG',
+            'picture_gust/0009.png',
+            'picture_gust/0010.png',
+            'picture_gust/0011.png'
+        ];
+        
+        // Birthday messages for each photo
+        const messages = [
+            "วันแรกที่เราพบกัน... เป็นวันที่เปลี่ยนทุกอย่างในชีวิตของเค้า",
+            "ทุกรอยยิ้มของเธอคือแสงสว่างที่ทำให้วันของเค้าสดใส",
+            "ความทรงจำดีๆ ที่เราสร้างร่วมกัน คือสิ่งล้ำค่าที่สุดในใจเค้า",
+            "เธอคือคนที่ทำให้เค้าเข้าใจความหมายของความรักที่แท้จริง",
+            "ทุกช่วงเวลาที่อยู่ข้างๆ เธอ คือช่วงเวลาที่มีความสุขที่สุด",
+            "ในวันเกิดของเธอคือวันที่พิเศษที่สุด เพราะเป็นวันที่คนพิเศษเกิดมา",
+            "เค้าขอให้พรในวันเกิดอายุ 20 นี้ ขอให้มีความสุขและรอยยิ้มตลอดไป",
+            "เธอคือของขวัญที่ดีที่สุดที่ชีวิตมอบให้เค้า สุขสันต์วันเกิดนะครับ",
+            "รักเธอมากที่สุดในโลก... (แต่น้อยกว่าแม่เค้านะ) และจะไม่มีวันเปลี่ยนแปลง",
+            "ขอให้ทุกวันของเธอเต็มไปด้วยความสุข เสียงหัวเราะ และความฝันที่เป็นจริง",
+            "สุขสันต์วันเกิดครั้งที่ 20 ขอให้เป็นปีที่สวยงามและประสบความสำเร็จในทุกสิ่ง"
+        ];
+        
+        let currentSlide = 0;
+        let autoSlideInterval;
+        let typingInterval;
+        let currentMessageIndex = 0;
+        let allMessagesTyped = false; // ติดตามว่าพิมข้อความครบแล้วหรือยัง
+        let typedMessages = []; // เก็บข้อความที่พิมแล้ว
+        let messageQueue = 0; // ควบคุมลำดับการพิมข้อความ
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            createBackgroundDecorations();
+            initializeCarousel();
+            createIndicators();
+            startAutoSlide();
+            
+            // Hide loading overlay after a delay
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.add('fade-out');
+                // Start typing the first message
+                setTimeout(() => {
+                    // Initialize the typing container with just the cursor
+                    const typingContainer = document.getElementById('typingText');
+                    const cursor = document.getElementById('cursor');
+                    typingContainer.innerHTML = '';
+                    typingContainer.appendChild(cursor);
+                    
+                    // เริ่มพิมข้อความแรก และกำหนด messageQueue
+                    messageQueue = 1; // เริ่มจากข้อความที่ 2 ในครั้งถัดไป
+                    startTypingMessage(0);
+                }, 1000);
+            }, 2000);
+        });
+        
+        // Create floating background decorations
+        function createBackgroundDecorations() {
+            const container = document.getElementById('bgDecorations');
+            const hearts = ['💖', '💕', '💝', '💗', '💘', '❤️', '💜', '💙'];
+            
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.top = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 6 + 's';
+                heart.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(heart);
+            }
+            
+            // Add sparkle effects
+            setInterval(() => {
+                createSparkle();
+            }, 3000);
+        }
+        
+        // Create sparkle effect
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.innerHTML = '✨';
+            sparkle.style.position = 'fixed';
+            sparkle.style.left = Math.random() * 100 + 'vw';
+            sparkle.style.top = Math.random() * 100 + 'vh';
+            sparkle.style.zIndex = '5';
+            
+            document.body.appendChild(sparkle);
+            
+            setTimeout(() => {
+                if (sparkle.parentNode) {
+                    sparkle.parentNode.removeChild(sparkle);
+                }
+            }, 2000);
+        }
+        
+        // Initialize the photo carousel
+        function initializeCarousel() {
+            const carousel = document.getElementById('carousel');
+            
+            photos.forEach((photo, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'photo-slide';
+                slide.innerHTML = `<img src="${photo}" alt="Memory ${index + 1}" onerror="this.style.display='none'">`;
+                slide.onclick = () => goToSlide(index);
+                carousel.appendChild(slide);
+            });
+            
+            updateSlidePositions();
+        }
+        
+        // Create indicators
+        function createIndicators() {
+            const indicatorsContainer = document.getElementById('indicators');
+            
+            photos.forEach((_, index) => {
+                const indicator = document.createElement('div');
+                indicator.className = 'indicator';
+                indicator.onclick = () => goToSlide(index);
+                indicatorsContainer.appendChild(indicator);
+            });
+            
+            updateIndicators();
+        }
+        
+        // Update slide positions with smoother transitions
+        function updateSlidePositions() {
+            const slides = document.querySelectorAll('.photo-slide');
+            
+            slides.forEach((slide, index) => {
+                // Remove all classes first
+                slide.className = 'photo-slide';
+                
+                // Calculate relative position from current slide
+                let relativePos = index - currentSlide;
+                
+                // Handle wrap-around for circular carousel
+                if (relativePos > slides.length / 2) {
+                    relativePos -= slides.length;
+                } else if (relativePos < -slides.length / 2) {
+                    relativePos += slides.length;
+                }
+                
+                // Apply positioning classes based on relative position
+                if (relativePos === 0) {
+                    slide.classList.add('active');
+                } else if (relativePos === -1) {
+                    slide.classList.add('prev');
+                } else if (relativePos === 1) {
+                    slide.classList.add('next');
+                } else if (relativePos === -2) {
+                    slide.classList.add('far-prev');
+                } else if (relativePos === 2) {
+                    slide.classList.add('far-next');
+                } else {
+                    slide.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Update indicators
+        function updateIndicators() {
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+        }
+        
+        // Navigate to specific slide with better feedback
+        function goToSlide(index) {
+            if (index === currentSlide) return;
+            
+            // Update current slide index
+            currentSlide = index;
+            
+            // Update visual positions
+            updateSlidePositions();
+            updateIndicators();
+            
+            // Type new message when slide changes, but only if we haven't typed all messages yet
+            // ใช้ messageQueue เพื่อให้แน่ใจว่าข้อความออกมาตามลำดับ
+            if (!allMessagesTyped && messageQueue < messages.length) {
+                startTypingMessage(messageQueue);
+                messageQueue++; // เพิ่มลำดับข้อความถัดไป
+            }
+            
+            // Reset auto slide timer to prevent conflicts
+            clearInterval(autoSlideInterval);
+            startAutoSlide();
+            
+            // Add visual feedback (optional)
+            console.log(`เปลี่ยนไปรูปที่ ${currentSlide + 1}/${photos.length} - ข้อความที่ ${messageQueue}/${messages.length}`);
+        }
+        
+        // Next slide - move from left to center (forward direction)
+        function nextSlide() {
+            const nextIndex = currentSlide === photos.length - 1 ? 0 : currentSlide + 1;
+            goToSlide(nextIndex);
+        }
+        
+        // Previous slide - move from right to center (backward direction)
+        function previousSlide() {
+            const prevIndex = currentSlide === 0 ? photos.length - 1 : currentSlide - 1;
+            goToSlide(prevIndex);
+        }
+        
+        // Start auto slide
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(() => {
+                nextSlide();
+            }, 2000); // Change slide every 2 seconds
+        }
+        
+        // Start typing message animation
+        function startTypingMessage(messageIndex) {
+            // Check if we've already typed all messages, if so, don't type again
+            if (allMessagesTyped || messageIndex >= messages.length) {
+                return;
+            }
+            
+            // ตรวจสอบว่าข้อความนี้เคยพิมแล้วหรือยัง (ใช้ลำดับที่แน่นอน)
+            if (typedMessages.includes(messageIndex)) {
+                return; // ถ้าพิมแล้วก็ไม่ต้องพิมอีก
+            }
+            
+            const typingContainer = document.getElementById('typingText');
+            const cursor = document.getElementById('cursor');
+            const message = messages[messageIndex];
+            
+            console.log(`กำลังพิมข้อความที่ ${messageIndex + 1}: ${message.substring(0, 30)}...`);
+            
+            // Don't clear previous messages, just add new line and continue
+            clearInterval(typingInterval);
+            
+            // If this is not the first message, add a new line
+            if (messageIndex > 0) {
+                const newLine = document.createElement('br');
+                typingContainer.insertBefore(newLine, cursor);
+                const separator = document.createElement('span');
+                separator.textContent = '\n';
+                separator.className = 'typed-char';
+                typingContainer.insertBefore(separator, cursor);
+            }
+            
+            let charIndex = 0;
+            
+            // Add typing sound effect
+            function typeSound() {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800 + Math.random() * 200, audioContext.currentTime);
+                    oscillator.type = 'square';
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.02, audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                } catch (error) {
+                    // Audio not available
+                }
+            }
+            
+            typingInterval = setInterval(() => {
+                if (charIndex < message.length) {
+                    const char = message[charIndex];
+                    const span = document.createElement('span');
+                    span.className = 'typed-char';
+                    span.textContent = char;
+                    span.style.animationDelay = '0s';
+                    
+                    // Insert before cursor
+                    typingContainer.insertBefore(span, cursor);
+                    
+                    // Auto scroll to bottom when typing
+                    typingContainer.scrollTop = typingContainer.scrollHeight;
+                    
+                    // Play typing sound for visible characters
+                    if (char !== ' ') {
+                        typeSound();
+                    }
+                    
+                    charIndex++;
+                } else {
+                    clearInterval(typingInterval);
+                    
+                    // บันทึกว่าพิมข้อความนี้แล้ว
+                    typedMessages.push(messageIndex);
+                    
+                    // Check if this was the last message
+                    if (messageIndex === messages.length - 1) {
+                        allMessagesTyped = true;
+                        console.log('พิมข้อความครบทุกข้อความแล้ว - หยุดพิมแล้ว');
+                    }
+                    // Ensure final scroll to bottom
+                    typingContainer.scrollTop = typingContainer.scrollHeight;
+                }
+            }, 30); // Faster typing speed for longer text
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    previousSlide();
+                    break;
+                case 'ArrowRight':
+                    nextSlide();
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+            }
+        });
+        
+        // Pause auto slide on mouse enter, resume on mouse leave
+        const carouselContainer = document.querySelector('.carousel-container');
+        carouselContainer.addEventListener('mouseenter', () => {
+            clearInterval(autoSlideInterval);
+        });
+        
+        carouselContainer.addEventListener('mouseleave', () => {
+            startAutoSlide();
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide(); // Swipe left - next slide
+                } else {
+                    previousSlide(); // Swipe right - previous slide
+                }
+            }
+        }
+        
+        // Add click sound effect
+        function playClickSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            } catch (error) {
+                console.log('Audio not available');
+            }
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            updateSlidePositions();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Happy Birthday August</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at center, #0a0a0a, #000000);
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let phase = "firework";
+let firework = {
+  x: canvas.width / 2,
+  y: canvas.height,
+  targetY: canvas.height / 2,
+  speed: 6
+};
+let explosionParticles = [];
+let textParticles = [];
+let balloonParticles = [];
+let phaseTimer = 0;
+let countdownNumber = 10;
+let countdownStarted = false;
+
+const textCanvas = document.createElement('canvas');
+textCanvas.width = canvas.width;
+textCanvas.height = canvas.height;
+const textCtx = textCanvas.getContext('2d');
+textCtx.font = 'bold 80px sans-serif';
+textCtx.fillStyle = 'white';
+textCtx.textAlign = 'center';
+textCtx.fillText('Happy Birthday August', canvas.width / 2, canvas.height / 2);
+const imageData = textCtx.getImageData(0, 0, canvas.width, canvas.height);
+
+function createExplosion() {
+  for (let i = 0; i < 400; i++) {
+    const angle = Math.random() * 2 * Math.PI;
+    const speed = Math.random() * 5 + 2;
+    explosionParticles.push({
+      x: firework.x,
+      y: firework.targetY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      alpha: 1,
+      color: `hsl(${Math.random() * 360}, 100%, 60%)`
+    });
+  }
+}
+
+function createTextParticles() {
+  for (let y = 0; y < canvas.height; y += 6) {
+    for (let x = 0; x < canvas.width; x += 6) {
+      const i = (y * canvas.width + x) * 4;
+      if (imageData.data[i + 3] > 150) {
+        textParticles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          targetX: x,
+          targetY: y,
+          vx: 0,
+          vy: 0,
+          color: `hsl(${Math.random() * 360}, 100%, 70%)`
+        });
+      }
+    }
+  }
+}
+
+function createBalloons() {
+  for (let i = 0; i < 40; i++) {
+    const x = Math.random() * canvas.width;
+    const y = canvas.height + Math.random() * 200;
+    balloonParticles.push({
+      x: x,
+      y: y,
+      radius: 20 + Math.random() * 15,
+      vy: 0.5 + Math.random(),
+      color: `hsl(${Math.random() * 360}, 80%, 70%)`,
+      rope: {
+        x: x + Math.random() * 30 - 15,
+        y: y + 50 + Math.random() * 20,
+        vx: 0,
+        vy: 0
+      }
+    });
+  }
+}
+
+function animateBalloons() {
+  balloonParticles.forEach(b => {
+    b.y -= b.vy;
+    if (b.y < -50) {
+      b.y = canvas.height + Math.random() * 100;
+      b.rope.y = b.y + 50;
+    }
+
+    // ขยับ rope เหมือนมีแรงลม
+    b.rope.vx += (b.x - b.rope.x) * 0.01;
+    b.rope.vy += ((b.y + b.radius + 30) - b.rope.y) * 0.01;
+    b.rope.vx *= 0.9;
+    b.rope.vy *= 0.9;
+    b.rope.x += b.rope.vx;
+    b.rope.y += b.rope.vy;
+
+    // วาดลูกโป่ง
+    ctx.beginPath();
+    ctx.ellipse(b.x, b.y, b.radius * 0.8, b.radius, 0, 0, Math.PI * 2);
+    ctx.fillStyle = b.color;
+    ctx.fill();
+    ctx.strokeStyle = "#ffffff22";
+    ctx.stroke();
+
+    // วาดเชือกแบบขยับได้
+    ctx.beginPath();
+    ctx.moveTo(b.x, b.y + b.radius);
+    ctx.quadraticCurveTo(b.x, b.rope.y, b.rope.x, b.rope.y);
+    ctx.strokeStyle = "#cccccc";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+}
+
+function animateTextParticles() {
+  textParticles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+  });
+}
+
+function animate() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (phase === "firework") {
+    ctx.beginPath();
+    ctx.arc(firework.x, firework.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+    firework.y -= firework.speed;
+    if (firework.y <= firework.targetY) {
+      phase = "explosion";
+      createExplosion();
+    }
+  }
+
+  if (phase === "explosion") {
+    explosionParticles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.97;
+      p.vy *= 0.97;
+      p.alpha -= 0.015;
+      ctx.globalAlpha = Math.max(p.alpha, 0);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+
+    if (explosionParticles.every(p => p.alpha <= 0)) {
+      phase = "text";
+      createTextParticles();
+    }
+  }
+
+  if (phase === "text") {
+    textParticles.forEach(p => {
+      const dx = p.targetX - p.x;
+      const dy = p.targetY - p.y;
+      p.vx += dx * 0.01;
+      p.vy += dy * 0.01;
+      p.vx *= 0.9;
+      p.vy *= 0.9;
+      p.x += p.vx;
+      p.y += p.vy;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+    });
+
+    if (textParticles.every(p =>
+      Math.abs(p.x - p.targetX) < 2 && Math.abs(p.y - p.targetY) < 2
+    )) {
+      phase = "balloons";
+      createBalloons();
+      phaseTimer = 0; // เริ่มนับเวลาเมื่อเข้าสู่ phase balloons
+    }
+  }
+
+  if (phase === "balloons") {
+    phaseTimer++;
+    animateBalloons();       // ลูกโป่งลอยขึ้นพร้อมเชือกขยับ
+    animateTextParticles();  // ข้อความยังอยู่เหนือเสมอ
+    
+    // หลังจากแสดง balloons ครบ 10 วินาที (60fps * 10 = 600 frames)
+    if (phaseTimer >= 600 && !countdownStarted) {
+      phase = "countdown";
+      countdownStarted = true;
+      phaseTimer = 0;
+    }
+  }
+
+  if (phase === "countdown") {
+    // ล้างหน้าจอเป็นสีดำ
+    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // แสดงเลขนับถอยหลัง
+    ctx.font = 'bold 150px Arial';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // เพิ่มเงาให้ตัวเลข
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+    ctx.shadowBlur = 20;
+    
+    ctx.fillText(countdownNumber, canvas.width / 2, canvas.height / 2);
+    
+    // รีเซ็ตเงา
+    ctx.shadowBlur = 0;
+    
+    phaseTimer++;
+    
+    // เปลี่ยนตัวเลขทุก 1 วินาที (60 frames)
+    if (phaseTimer >= 60) {
+      countdownNumber--;
+      phaseTimer = 0;
+      
+      // เมื่อนับถึง 0 ให้เปลี่ยนหน้า
+      if (countdownNumber <= 0) {
+        // เปลี่ยนไปหน้า por.html
+        window.location.href = 'por.html';
+        return;
+      }
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>
